@@ -2,16 +2,17 @@ import React, {Component} from 'react';
 import NewUserForm from './NewUserForm';
 import UserList from './UserList';
 import {connect} from 'react-redux';
-import {getUsersRequest, createUserRequest, deleteUserRequest} from '../actions/users';
+import {getUsersRequest, createUserRequest, deleteUserRequest, usersError} from '../actions/users';
+import {Alert} from 'reactstrap';
 
 class App extends Component {
     constructor(props){
         super(props);
+
         this.props.getUsersRequest();
     }
 
     handleCreateUserSubmit = ({firstName, lastName}) => {
-        console.log(firstName, lastName);
         this.props.createUserRequest({
             firstName,
             lastName
@@ -19,8 +20,13 @@ class App extends Component {
     };
 
     handleDeleteUserClick = (userId) => {
-        console.log(userId);
         this.props.deleteUserRequest(userId);
+    };
+
+    handleCloseAlert = () => {
+        this.props.usersError({
+            error: ''
+        });
     };
 
     render(){
@@ -30,6 +36,9 @@ class App extends Component {
                 <h2>
                     Users
                 </h2>
+                <Alert color="danger" isOpen={!!this.props.users.error} toggle={this.handleCloseAlert}>
+                    {this.props.users.error}
+                </Alert>
                 <NewUserForm onSubmit={this.handleCreateUserSubmit} />
                 {!!users.items && !!users.items.length &&
                 <UserList onDeleteUserClick={this.handleDeleteUserClick} users={users.items}/>
@@ -42,5 +51,6 @@ class App extends Component {
 export default connect(({users}) => ({users}), {
     getUsersRequest,
     createUserRequest,
-    deleteUserRequest
+    deleteUserRequest,
+    usersError
 })(App);
